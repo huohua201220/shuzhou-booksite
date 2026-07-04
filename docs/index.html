@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>书舟 | 手机传书</title>
+  <style>
+    :root {
+      --bg: #eef3f8;
+      --panel: rgba(255, 255, 255, 0.96);
+      --panel-soft: rgba(248, 250, 252, 0.96);
+      --ink: #112033;
+      --muted: #66758a;
+      --line: rgba(17, 32, 51, 0.1);
+      --accent: #2563eb;
+      --accent-deep: #1d4ed8;
+      --danger: #c2410c;
+      --shadow: 0 24px 56px rgba(15, 23, 42, 0.12);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Segoe UI", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at top left, rgba(37, 99, 235, 0.11), transparent 26%),
+        radial-gradient(circle at top right, rgba(15, 118, 110, 0.08), transparent 22%),
+        linear-gradient(180deg, #f8fbff 0%, #eef3f8 100%);
+    }
+
+    .shell {
+      width: min(760px, calc(100vw - 20px));
+      margin: 14px auto 28px;
+      display: grid;
+      gap: 14px;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      box-shadow: var(--shadow);
+    }
+
+    .hero {
+      padding: 24px 20px 20px;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(37, 99, 235, 0.1);
+      color: var(--accent-deep);
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    h1 {
+      margin: 14px 0 8px;
+      font-size: clamp(30px, 6vw, 44px);
+      line-height: 1.04;
+    }
+
+    .subhead {
+      margin: 0;
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.75;
+      max-width: 32ch;
+    }
+
+    .statbar {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 16px;
+    }
+
+    .stat {
+      min-width: 120px;
+      padding: 12px 14px;
+      border-radius: 16px;
+      background: var(--panel-soft);
+      border: 1px solid rgba(17, 24, 39, 0.08);
+    }
+
+    .stat-name {
+      color: var(--muted);
+      font-size: 12px;
+      margin-bottom: 6px;
+    }
+
+    .stat-value {
+      font-size: 22px;
+      font-weight: 850;
+      line-height: 1;
+    }
+
+    .toolbox {
+      padding: 18px 20px 20px;
+      display: grid;
+      gap: 12px;
+    }
+
+    .field {
+      display: grid;
+      gap: 8px;
+    }
+
+    label {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--muted);
+    }
+
+    input, button {
+      font: inherit;
+    }
+
+    input[type="file"] {
+      width: 100%;
+      border: 1px dashed rgba(18, 32, 51, 0.18);
+      border-radius: 14px;
+      padding: 14px;
+      background: rgba(248, 250, 252, 0.92);
+      color: var(--ink);
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    button, .action-link {
+      border: 0;
+      border-radius: 12px;
+      padding: 12px 16px;
+      cursor: pointer;
+      font-weight: 800;
+      transition: transform 160ms ease;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    button:hover,
+    .action-link:hover {
+      transform: translateY(-1px);
+    }
+
+    .primary {
+      background: linear-gradient(135deg, var(--accent), var(--accent-deep));
+      color: #fff;
+      box-shadow: 0 12px 24px rgba(37, 99, 235, 0.22);
+    }
+
+    .secondary {
+      background: rgba(15, 23, 42, 0.08);
+      color: var(--ink);
+    }
+
+    .danger {
+      background: #fff7ed;
+      color: var(--danger);
+      border: 1px solid #fdba74;
+    }
+
+    .notice {
+      padding: 12px 14px;
+      border-radius: 14px;
+      border: 1px solid rgba(37, 99, 235, 0.16);
+      background: rgba(239, 246, 255, 0.92);
+      color: var(--accent-deep);
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .warning {
+      border-color: rgba(180, 83, 9, 0.18);
+      background: rgba(255, 251, 235, 0.94);
+      color: #b45309;
+    }
+
+    .helper {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.7;
+    }
+
+    .books {
+      padding: 18px 20px 20px;
+      display: grid;
+      gap: 12px;
+    }
+
+    .section-head {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    h2 {
+      margin: 0;
+      font-size: 16px;
+    }
+
+    .book-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .book-card {
+      padding: 14px;
+      border-radius: 16px;
+      background: rgba(248, 250, 252, 0.96);
+      border: 1px solid rgba(17, 24, 39, 0.08);
+      display: grid;
+      gap: 12px;
+    }
+
+    .book-top {
+      display: grid;
+      grid-template-columns: 58px minmax(0, 1fr);
+      gap: 12px;
+      align-items: start;
+    }
+
+    .book-ext {
+      width: 58px;
+      height: 58px;
+      border-radius: 12px;
+      background: #fff;
+      border: 1px solid rgba(18, 32, 51, 0.1);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 800;
+      color: var(--accent-deep);
+    }
+
+    .book-title {
+      margin: 0 0 6px;
+      font-size: 18px;
+      line-height: 1.35;
+    }
+
+    .book-file,
+    .book-meta {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.55;
+      word-break: break-all;
+    }
+
+    .book-actions {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .empty {
+      padding: 30px 18px;
+      border-radius: 18px;
+      background: rgba(248, 250, 252, 0.92);
+      border: 1px dashed rgba(17, 24, 39, 0.16);
+      text-align: center;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+
+    @media (max-width: 640px) {
+      .shell {
+        width: min(100vw - 12px, 760px);
+        margin: 10px auto 18px;
+      }
+
+      .hero,
+      .toolbox,
+      .books {
+        padding: 16px;
+      }
+
+      .book-actions button,
+      .book-actions a {
+        flex: 1 1 auto;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <section class="panel hero">
+      <div class="eyebrow">Book Drop</div>
+      <h1>书舟</h1>
+      <p class="subhead">手机上传，阅读器下载。现在就只做传书这件事，别的都不打扰你。</p>
+      <div class="statbar">
+        <div class="stat">
+          <div class="stat-name">当前书库</div>
+          <div class="stat-value" id="bookCount">0</div>
+        </div>
+        <div class="stat">
+          <div class="stat-name">最近上传</div>
+          <div class="stat-value" id="latestTime">暂无</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel toolbox">
+      <div class="field">
+        <label for="bookFile">选择书籍</label>
+        <input id="bookFile" type="file" accept=".epub,.pdf,.txt,.mobi,.azw3,.fb2,.md,.docx" />
+      </div>
+
+      <div class="actions">
+        <button class="primary" id="uploadButton" type="button">上传到书库</button>
+        <button class="secondary" id="refreshButton" type="button">刷新书库</button>
+      </div>
+
+      <div class="notice" id="messageBox">书库准备好了，可以直接上传。</div>
+      <div class="helper">支持 EPUB / PDF / TXT / MOBI / AZW3 / FB2 / MD / DOCX。上传后，Kindle 或电纸书浏览器打开同一个站点就能下载。</div>
+    </section>
+
+    <section class="panel books">
+      <div class="section-head">
+        <h2>书库内容</h2>
+        <div class="helper" id="libraryHint">已连接 Supabase 书库</div>
+      </div>
+      <div class="book-list" id="bookList"></div>
+    </section>
+  </div>
+
+  <script>
+    var SUPABASE_URL = "https://yfaffheetiehihholbyx.supabase.co";
+    var SUPABASE_KEY = "sb_publishable_zIA_O_punf74NhmC0FJxgA_ERxkEusr";
+    var SUPABASE_BUCKET = "books";
+
+    var fileEl = document.getElementById("bookFile");
+    var messageBoxEl = document.getElementById("messageBox");
+    var bookListEl = document.getElementById("bookList");
+    var bookCountEl = document.getElementById("bookCount");
+    var latestTimeEl = document.getElementById("latestTime");
+    var libraryHintEl = document.getElementById("libraryHint");
+    var books = [];
+
+    function setMessage(text, tone) {
+      messageBoxEl.innerHTML = escapeHtml(text || "");
+      messageBoxEl.className = tone === "warn" ? "notice warning" : "notice";
+    }
+
+    function getSupabaseHeaders(extra) {
+      var headers = { apikey: SUPABASE_KEY };
+      var key;
+      extra = extra || {};
+      for (key in extra) {
+        if (Object.prototype.hasOwnProperty.call(extra, key)) {
+          headers[key] = extra[key];
+        }
+      }
+      return headers;
+    }
+
+    function zeroPad(value) {
+      return value < 10 ? "0" + value : String(value);
+    }
+
+    function formatSize(size) {
+      var units = ["B", "KB", "MB", "GB"];
+      var value = Number(size || 0);
+      var unitIndex = 0;
+      while (value >= 1024 && unitIndex < units.length - 1) {
+        value = value / 1024;
+        unitIndex += 1;
+      }
+      return unitIndex === 0 ? Math.round(value) + " " + units[unitIndex] : value.toFixed(1) + " " + units[unitIndex];
+    }
+
+    function formatTime(ts) {
+      var date;
+      if (!ts) return "暂无";
+      date = new Date(ts * 1000);
+      if (isNaN(date.getTime())) return "暂无";
+      return (date.getMonth() + 1) + "-" + zeroPad(date.getDate());
+    }
+
+    function escapeHtml(text) {
+      return String(text || "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/\"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+    }
+
+    function getBookExt(name) {
+      var dot = (name || "").lastIndexOf(".");
+      return dot >= 0 ? name.slice(dot).toLowerCase() : "";
+    }
+
+    function safeNormalize(text) {
+      if (text && typeof text.normalize === "function") {
+        return text.normalize("NFKD");
+      }
+      return text;
+    }
+
+    function slugAscii(text) {
+      return safeNormalize(String(text || "book"))
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[^a-zA-Z0-9._-]+/g, "-")
+        .replace(/-+/g, "-")
+        .replace(/^-+|-+$/g, "")
+        .toLowerCase();
+    }
+
+    function makeSupabasePath(file) {
+      var stamp = new Date().getTime();
+      var rawName = file.name || "book";
+      var dotIndex = rawName.lastIndexOf(".");
+      var baseName = dotIndex > 0 ? rawName.slice(0, dotIndex) : rawName;
+      var extension = dotIndex > 0 ? rawName.slice(dotIndex).toLowerCase().replace(/[^.a-z0-9]+/g, "") : "";
+      var safeBase = slugAscii(baseName) || "book";
+      var safeExt = extension && extension !== "." ? extension : "";
+      return stamp + "-" + safeBase + safeExt;
+    }
+
+    function parseErrorBody(status, bodyText) {
+      var fallback = "HTTP " + status;
+      var parsed;
+      if (!bodyText) return fallback;
+      try {
+        parsed = JSON.parse(bodyText);
+        return parsed.message || parsed.error_description || parsed.error || bodyText;
+      } catch (error) {
+        return bodyText;
+      }
+    }
+
+    function buildObjectApiUrl(path) {
+      return SUPABASE_URL + "/storage/v1/object/" + SUPABASE_BUCKET + "/" + encodeURIComponent(path).replace(/%2F/g, "/");
+    }
+
+    function buildDownloadUrl(book) {
+      return SUPABASE_URL + "/storage/v1/object/public/" + SUPABASE_BUCKET + "/" + encodeURIComponent(book.path).replace(/%2F/g, "/");
+    }
+
+    function updateSummary() {
+      bookCountEl.innerHTML = String(books.length);
+      latestTimeEl.innerHTML = books.length ? formatTime(books[0].uploaded_at) : "暂无";
+    }
+
+    function isArray(value) {
+      return Object.prototype.toString.call(value) === "[object Array]";
+    }
+
+    function mapItemsToBooks(items) {
+      var result = [];
+      var index;
+      var item;
+      var filename;
+      var ext;
+      for (index = 0; index < items.length; index += 1) {
+        item = items[index] || {};
+        filename = item.name || "未命名";
+        ext = getBookExt(filename);
+        result.push({
+          id: item.id || item.name,
+          path: item.name,
+          title: filename.replace(/\.[^.]+$/, ""),
+          filename: filename,
+          ext: ext,
+          size: item.metadata && item.metadata.size ? item.metadata.size : 0,
+          uploaded_at: item.updated_at ? Math.floor(new Date(item.updated_at).getTime() / 1000) : 0
+        });
+      }
+      return result;
+    }
+
+    function bindDeleteButtons() {
+      var buttons = document.getElementsByClassName("delete-book-button");
+      var i;
+      for (i = 0; i < buttons.length; i += 1) {
+        buttons[i].onclick = function () {
+          var path = this.getAttribute("data-path");
+          if (!confirm("删除这本书？")) return;
+          deleteBook(path, function (error) {
+            if (error) {
+              setMessage(error, "warn");
+              return;
+            }
+            loadBooks();
+          });
+        };
+      }
+    }
+
+    function renderBooks() {
+      var html = "";
+      var i;
+      var book;
+      if (!books.length) {
+        bookListEl.innerHTML = '<div class="empty">当前书库还没有书。<br>先上传一本试试。</div>';
+        return;
+      }
+
+      for (i = 0; i < books.length; i += 1) {
+        book = books[i];
+        html += ''
+          + '<article class="book-card">'
+          + '  <div class="book-top">'
+          + '    <div class="book-ext">' + escapeHtml((book.ext || "").replace(".", "").toUpperCase() || "FILE") + '</div>'
+          + '    <div>'
+          + '      <h3 class="book-title">' + escapeHtml(book.title || book.filename) + '</h3>'
+          + '      <div class="book-file">' + escapeHtml(book.filename) + '</div>'
+          + '      <div class="book-meta">' + escapeHtml(formatSize(book.size) + " · " + formatTime(book.uploaded_at)) + '</div>'
+          + '    </div>'
+          + '  </div>'
+          + '  <div class="book-actions">'
+          + '    <a href="' + escapeHtml(buildDownloadUrl(book)) + '" class="action-link primary">下载</a>'
+          + '    <button type="button" class="danger delete-book-button" data-path="' + escapeHtml(book.path) + '">删除</button>'
+          + '  </div>'
+          + '</article>';
+      }
+
+      bookListEl.innerHTML = html;
+      bindDeleteButtons();
+    }
+
+    function request(method, url, headers, body, callback) {
+      var xhr = new XMLHttpRequest();
+      var key;
+      xhr.open(method, url, true);
+      headers = headers || {};
+      for (key in headers) {
+        if (Object.prototype.hasOwnProperty.call(headers, key)) {
+          xhr.setRequestHeader(key, headers[key]);
+        }
+      }
+      xhr.onreadystatechange = function () {
+        if (xhr.readyState !== 4) return;
+        callback(xhr.status, xhr.responseText);
+      };
+      xhr.onerror = function () {
+        callback(0, "");
+      };
+      xhr.send(body);
+    }
+
+    function loadBooks() {
+      libraryHintEl.innerHTML = "正在同步书库...";
+      request(
+        "POST",
+        SUPABASE_URL + "/storage/v1/object/list/" + SUPABASE_BUCKET,
+        getSupabaseHeaders({ "Content-Type": "application/json" }),
+        JSON.stringify({
+          prefix: "",
+          limit: 200,
+          offset: 0,
+          sortBy: { column: "name", order: "desc" }
+        }),
+        function (status, responseText) {
+          var items;
+          if (status < 200 || status >= 300) {
+            books = [];
+            updateSummary();
+            renderBooks();
+            libraryHintEl.innerHTML = "书库连接失败";
+            setMessage("连接失败：" + parseErrorBody(status, responseText), "warn");
+            return;
+          }
+
+          try {
+            items = JSON.parse(responseText);
+          } catch (error) {
+            items = [];
+          }
+
+          books = isArray(items) ? mapItemsToBooks(items) : [];
+          updateSummary();
+          renderBooks();
+          libraryHintEl.innerHTML = "书库已连接";
+          setMessage(books.length ? "书库已同步。" : "书库已连接，目前还没有书。");
+        }
+      );
+    }
+
+    function uploadBook() {
+      var file = fileEl.files && fileEl.files[0];
+      var objectPath;
+      if (!file) {
+        setMessage("先选一本书。", "warn");
+        return;
+      }
+
+      objectPath = makeSupabasePath(file);
+      setMessage("正在上传 " + (file.name || "book") + " ...");
+
+      request(
+        "POST",
+        buildObjectApiUrl(objectPath),
+        getSupabaseHeaders({
+          "Content-Type": file.type || "application/octet-stream",
+          "x-upsert": "false"
+        }),
+        file,
+        function (status, responseText) {
+          if (status < 200 || status >= 300) {
+            setMessage("上传失败：" + parseErrorBody(status, responseText), "warn");
+            return;
+          }
+          fileEl.value = "";
+          setMessage("上传成功。");
+          loadBooks();
+        }
+      );
+    }
+
+    function deleteBook(path, callback) {
+      request(
+        "DELETE",
+        SUPABASE_URL + "/storage/v1/object/" + SUPABASE_BUCKET,
+        getSupabaseHeaders({ "Content-Type": "application/json" }),
+        JSON.stringify({ prefixes: [path] }),
+        function (status, responseText) {
+          if (status < 200 || status >= 300) {
+            callback("删除失败：" + parseErrorBody(status, responseText));
+            return;
+          }
+          callback(null);
+        }
+      );
+    }
+
+    document.getElementById("uploadButton").onclick = uploadBook;
+    document.getElementById("refreshButton").onclick = loadBooks;
+
+    updateSummary();
+    renderBooks();
+    loadBooks();
+  </script>
+</body>
+</html>
